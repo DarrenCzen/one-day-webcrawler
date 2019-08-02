@@ -1,7 +1,9 @@
 import scrapy
+from crawlproj.items import JokeItem
+from scrapy.loader import ItemLoader
 
 class JokesSpider(scrapy.Spider):
-    name = 'spooders'
+    name = 'upspooders'
     # This will be a uniqie name for your spider
     # which you will call 'scrapy crawl spooders -o data.json'
     # another way is 'scrapy runspider quotes_spider.py -o quotes.json'
@@ -13,11 +15,14 @@ class JokesSpider(scrapy.Spider):
     def parse(self, response):
         # .xpath basically grabs all divisors with class=joke-text and save them into an array
         for joke in response.xpath("//div[@class='joke-text']"):
+            loader = ItemLoader(item=JokeItem(), selector=joke)
+            
             # first one gets just the text, second one gets the pid with the text (basically whole para with labels)
             # 'joke_text': joke.xpath("./p/text()").get() 
-            yield {
-                'joke_text': joke.xpath("./p").get()
-            }
+            # 'joke_text': joke.xpath("./p").get()
+
+            loader.add_xpath('joke_text',"./p")
+            yield loader.load_item()
         
 
         # this is for scraping the next few pages
